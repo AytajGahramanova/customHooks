@@ -6,22 +6,41 @@ const useHttp = (url) => {
   const [response, setResponse] = useState([]);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(url);
-        setResponse(res?.data);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getData();
-  }, [url]);
+  const getData = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(url);
+      setResponse(res?.data);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return [loading, error, response];
+  const postData = async (data) => {
+    try {
+      setLoading(true);
+      const res = await axios.post(url, data);
+      setResponse(res?.data);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const deleteData = async (id)=> {
+    await axios.delete(`http://localhost:3000/users/${id}`);
+    getData();
+  }
+  
+  useEffect(() => {
+    getData();
+  }, [url]); 
+
+  return [loading, error, response, getData, postData, deleteData];
 };
 
 export default useHttp;

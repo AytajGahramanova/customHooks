@@ -1,6 +1,7 @@
-import { useState } from "react";
-import useColor from "./hooks/useColor";
+import { useEffect, useState } from "react";
 import "./App.css";
+import useColor from "./hooks/useColor";
+import useHttp from "./hooks/useHttp";
 
 const Form = () => {
   const [name, setName] = useState("");
@@ -14,6 +15,14 @@ const Form = () => {
   const [passwordError, setPasswordError] = useState("");
   const [passworagainError, setPasswordAgainError] = useState("");
   const [generalError, setGeneralError] = useState("");
+
+  const [allusersData, setAllUsersData] = useState([]);
+
+  const [loading, error, response, getData, postData, deleteData] = useHttp("http://localhost:3000/users");
+
+  const handleDelete = (id) => {
+    deleteData(id);
+  }
 
   const {
     headerColor,
@@ -32,7 +41,7 @@ const Form = () => {
     return emailRegex.test(email);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (
@@ -87,7 +96,26 @@ const Form = () => {
     } else {
       setPasswordAgainError("");
     }
+
+    const userData = {
+      name,
+      surname,
+      email,
+      password,
+      passwordagain,
+    };
+    postData(userData);
+
   };
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
+
+  useEffect(() => {
+    setAllUsersData(response);
+  }, [response])
+
 
   return (
     <div>
@@ -273,15 +301,25 @@ const Form = () => {
               )}
 
               <div className="buttons">
-                <button>Reset button</button>
-                <button>Submit button</button>
+                <button type="reset">Reset button</button>
+                <button type="submit">Submit button</button>
               </div>
             </div>
           </form>
         </div>
 
-        <div style={{ backgroundColor: "#ecf1f6", padding: "10px 150px" }}>
-          salam
+        <div style={{ backgroundColor: "#ecf1f6", padding: 30 }}>
+          {/* {loading && <p>Loading...</p>} */}
+          {error && <p>Error: {error.message}</p>}
+          {allusersData.map((item) => (
+            <div key={item.id} style={{border: "1px solid gray", padding: 10}}>
+              <p><b>Name: </b>{item.name}</p>
+              <p><b>Surname: </b>{item.surname}</p>
+              <p><b>Email: </b>{item.email}</p>
+              <p><b>Password: </b>{item.password}</p>
+              <button style={{background: "red", color: "#fff", padding: "8px 20px", border: "none"}}  onClick={() => handleDelete(item.id)}>Delete</button>
+            </div>
+          ))}
         </div>
       </div>
 
