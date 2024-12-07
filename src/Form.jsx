@@ -15,14 +15,16 @@ const Form = () => {
   const [passwordError, setPasswordError] = useState("");
   const [passworagainError, setPasswordAgainError] = useState("");
   const [generalError, setGeneralError] = useState("");
+  const [submittedData, setSubmittedData] = useState(null);
 
-  const [allusersData, setAllUsersData] = useState([]);
-
-  const [loading, error, response, getData, postData, deleteData] = useHttp("http://localhost:3000/users");
+  const [loading, error, response, getData, postData, deleteData] = useHttp(
+    "http://localhost:3000/users"
+  );
 
   const handleDelete = (id) => {
     deleteData(id);
-  }
+    setSubmittedData(null);
+  };
 
   const {
     headerColor,
@@ -104,18 +106,15 @@ const Form = () => {
       password,
       passwordagain,
     };
-    postData(userData);
 
+    setSubmittedData(userData);
+
+    postData(userData);
   };
 
   useEffect(() => {
     getData();
-  }, [getData]);
-
-  useEffect(() => {
-    setAllUsersData(response);
-  }, [response])
-
+  }, []);
 
   return (
     <div>
@@ -125,9 +124,9 @@ const Form = () => {
 
       <div
         className="content"
-        style={{ display: "flex", justifyContent: "space-between", margin: 20 }}
+        style={{ display: "flex", gap: "5rem", margin: 20 }}
       >
-        <div>
+        <div className="wrapper">
           <form onSubmit={handleSubmit}>
             <div
               className="button-wrapper"
@@ -221,7 +220,7 @@ const Form = () => {
               </button>
             </div>
 
-            <div className="input-wrapper" style={{ marginLeft: "10%" }}>
+            <div className="input-wrapper">
               <h2 style={{ textAlign: "center" }}>PLEASE FILL IN THIS FORM</h2>
               {generalError && (
                 <p style={{ color: "red", textAlign: "center" }}>
@@ -301,25 +300,68 @@ const Form = () => {
               )}
 
               <div className="buttons">
-                <button type="reset">Reset button</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setName("");
+                    setSurname("");
+                    setEmail("");
+                    setPassword("");
+                    setPasswordAgain("");
+                    setNameError("");
+                    setSurnameError("");
+                    setEmailError("");
+                    setPasswordError("");
+                    setPasswordAgainError("");
+                    setGeneralError("");
+                  }}
+                >
+                  Reset button
+                </button>
                 <button type="submit">Submit button</button>
               </div>
             </div>
           </form>
         </div>
-
-        <div style={{ backgroundColor: "#ecf1f6", padding: 30 }}>
-          {/* {loading && <p>Loading...</p>} */}
-          {error && <p>Error: {error.message}</p>}
-          {allusersData.map((item) => (
-            <div key={item.id} style={{border: "1px solid gray", padding: 10}}>
-              <p><b>Name: </b>{item.name}</p>
-              <p><b>Surname: </b>{item.surname}</p>
-              <p><b>Email: </b>{item.email}</p>
-              <p><b>Password: </b>{item.password}</p>
-              <button style={{background: "red", color: "#fff", padding: "8px 20px", border: "none"}}  onClick={() => handleDelete(item.id)}>Delete</button>
+        <div style={{ backgroundColor: "#ecf1f6", padding: 20, width: "100%" }}>
+          <h3>Submitted Data:</h3>
+          {submittedData ? (
+            <div
+              className="item-content"
+              style={{
+                marginTop: "20px",
+                border: "1px solid #ccc",
+                padding: "10px",
+                borderRadius: "8px",
+              }}
+            >
+              <p>
+                <b>Name:</b> {submittedData.name}
+              </p>
+              <p>
+                <b>Surname:</b> {submittedData.surname}
+              </p>
+              <p>
+                <b>Email:</b> {submittedData.email}
+              </p>
+              <p>
+                <b>Password:</b> {submittedData.password}
+              </p>
+              <button
+                style={{
+                  background: "red",
+                  color: "#fff",
+                  padding: "8px 20px",
+                  border: "none",
+                }}
+                onClick={() => submittedData && handleDelete(submittedData.id)}
+              >
+                Delete
+              </button>
             </div>
-          ))}
+          ) : (
+            <p>No data</p>
+          )}
         </div>
       </div>
 
